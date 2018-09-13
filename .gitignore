@@ -1,2 +1,6 @@
 *.class
 *.log
+/.idea/
+*.iml
+target/
+dependency-reduced-pom.xml
