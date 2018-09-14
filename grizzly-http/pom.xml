@@ -11,7 +11,6 @@
 
     <artifactId>grizzly-http</artifactId>
 
-
     <dependencies>
         <!--Common jar-->
         <dependency>

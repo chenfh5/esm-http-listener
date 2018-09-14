@@ -29,6 +29,10 @@
         <fileSet>
             <directory>esmdir</directory>
             <outputDirectory>esmdir</outputDirectory>
+            <includes>
+                <include>esm</include>
+            </includes>
+            <fileMode>0755</fileMode>
         </fileSet>
     </fileSets>
 

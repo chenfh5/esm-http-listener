@@ -18,7 +18,7 @@ object OwnConfigReader {
     var _AUTH64 = getAsStr("_AUTH64")
 
     var TIMEOUT_MILLS = getAsInt("TIMEOUT_MILLS")
-    var ESM_BIN_FILE = ""
+    var ESM_BIN_DIR = ""
 
     override def toString: String = super.toString
   }

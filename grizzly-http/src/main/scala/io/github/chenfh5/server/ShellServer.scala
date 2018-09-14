@@ -33,8 +33,8 @@ object ShellServer {
     val cli = parseArgs2Cli(args)
     val host = cli.getOptionValue("host", OwnConfig.SERVER_HOST)
     val port = cli.getOptionValue("port", OwnConfig.HTTP_SERVER_PORT_1.toString)
-    OwnConfig.ESM_BIN_FILE = cli.getOptionValue("esm")
-    require(StringUtils.isNoneBlank(OwnConfig.ESM_BIN_FILE))
+    OwnConfig.ESM_BIN_DIR = cli.getOptionValue("esm")
+    require(StringUtils.isNoneBlank(OwnConfig.ESM_BIN_DIR))
 
     val shellServer = apply(host, port.toInt)
     shellServer.init()
@@ -55,7 +55,7 @@ object ShellServer {
       val options = new Options()
         .addOption(null, "host", true, "server host")
         .addOption(null, "port", true, "server port")
-        .addOption(null, "esm", true, "absolute path of esm bin file")
+        .addOption(null, "esm", true, "absolute path of esm dir")
       new DefaultParser().parse(options, args)
     }
     catch {

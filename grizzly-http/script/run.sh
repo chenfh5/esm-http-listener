@@ -5,7 +5,7 @@ port=$2
 log=""
 pidfile=""
 pwd=""
-esm_bin_file=""
+esm_bin_dir=""
 
 function env_build(){
     date
@@ -15,7 +15,8 @@ function env_build(){
     echo pwd=$pwd
     log=$pwd/log
     pidfile=$pwd/pidfile.pid
-    esm_bin_file=$pwd/../esmdir/esm
+    esm_bin_dir=$pwd/../esmdir
+    mkdir $esm_bin_dir/log
     source "$pwd/util.sh"
 }
 
@@ -44,10 +45,11 @@ function main(){
     echo OPTS=${OPTS}
     echo jarFile=${jarFile}
 
-    java $OPTS -cp $jarFile io.github.chenfh5.server.ShellServer --host=$host --port=$port --esm=$esm_bin_file > esm-http-listener.out 2>&1 &
+    java $OPTS -cp $jarFile io.github.chenfh5.server.ShellServer --host=$host --port=$port --esm=$esm_bin_dir > esm-http-listener.out 2>&1 &
     echo $! > $pidfile
 
     echo "begin to run at:" `date`
 }
 
 main
+ps aux | grep "io.github.chenfh5.server.ShellServer" | grep -v "grep"

@@ -38,18 +38,30 @@ class ShellHandler extends HandlerTrait {
     val bulk_size = postBodyMap.getOrElse("bulk_size", 12)
     val count = postBodyMap.getOrElse("count", 10000)
 
-//    val esmBin = OwnUtils.makeFile(OwnUtils.getCurrentDir, "esmdir", "esm")
-
-    // TODO: nohup shell common?
-    val cmd =
-      """sh %s --source=%s --dest=%s --source_auth=%s --dest_auth=%s --src_indexes=%s
-        | --copy_settings --copy_mappings --refresh --sliced_scroll_size=5 --shards=%s --workers=%s --bulk_size=%s --count=%s""".stripMargin
-        .format(OwnConfig.ESM_BIN_FILE, source, dest, source_auth, dest_auth, src_indexes, shards, workers, bulk_size, count)
-
+    var cmd =
+      """%s/esm --source=%s --dest=%s --source_auth=%s --dest_auth=%s --src_indexes=%s --copy_settings --copy_mappings --refresh --sliced_scroll_size=5 --shards=%s --workers=%s --bulk_size=%s --count=%s"""
+        .format(OwnConfig.ESM_BIN_DIR, source, dest, source_auth, dest_auth, src_indexes, shards, workers, bulk_size, count)
     LOG.info("this is the ShellHandler cmd={}", cmd)
-    response.setCharacterEncoding(StandardCharsets.UTF_8.toString)
-    response.getWriter.write(s"cmd=$cmd, trigger at ${OwnUtils.getTimeNow()}")
-    response.finish()
+
+    // add nohup
+    val name = s"${OwnUtils.getTimeNow(true)}_${cmd.hashCode}"
+    cmd += s""" >${OwnConfig.ESM_BIN_DIR}/log/$name 2>&1 &""" // log file for each http call
+
+    // run shell script
+    var msg: String = ""
+    try {
+      import sys.process._
+      cmd.!! // TODO: blocking here, need async. 2 how to pipeline make file
+      msg = s"cmd=$cmd success"
+    } catch {
+      case e: Throwable =>
+        msg = s"cmd=$cmd, error=${e.getMessage}"
+        LOG.error(s"this is the $msg")
+    } finally {
+      response.setCharacterEncoding(StandardCharsets.UTF_8.toString)
+      response.getWriter.write(s"msg=$msg, trigger at ${OwnUtils.getTimeNow()}")
+      response.finish()
+    }
   }
 
 }
