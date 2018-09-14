@@ -43,6 +43,7 @@
             <groupId>org.scalaj</groupId>
             <artifactId>scalaj-http_${scala.source.version}</artifactId>
             <version>2.4.1</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
