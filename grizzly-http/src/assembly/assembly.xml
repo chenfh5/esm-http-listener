@@ -21,9 +21,7 @@
             <directory>script</directory>
             <outputDirectory>script</outputDirectory>
             <includes>
-                <include>util.sh</include>
-                <include>run.sh</include>
-                <include>stop.sh</include>
+                <include>*.sh</include>
             </includes>
             <fileMode>0755</fileMode>
         </fileSet>

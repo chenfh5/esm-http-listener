@@ -28,7 +28,8 @@ function main(){
     else
       exit 1
     fi
+
+    echo "end to stop at:" `date`
 }
 
-echo "end to stop at:" `date`
-
+main

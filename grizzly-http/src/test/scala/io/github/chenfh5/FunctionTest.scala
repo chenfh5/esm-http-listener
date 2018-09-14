@@ -21,7 +21,7 @@ class FunctionTest {
 
   @Test(enabled = true, priority = 1)
   def testShellServer(): Unit = {
-    val shellServer = ShellServer()
+    val shellServer = ShellServer(OwnConfigReader.OwnConfig.SERVER_HOST, OwnConfigReader.OwnConfig.HTTP_SERVER_PORT_1)
     println(s"this is the testShellServer NEED_AUTH=${OwnConfigReader.OwnConfig.NEED_AUTH}")
     (0 to 1).toList.par.foreach {
       case row if row % 2 == 0 =>

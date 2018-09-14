@@ -2,6 +2,7 @@ package io.github.chenfh5.handler
 
 import java.nio.charset.StandardCharsets
 
+import io.github.chenfh5.OwnConfigReader.OwnConfig
 import io.github.chenfh5.OwnUtils
 import org.glassfish.grizzly.http.server.{Request, Response}
 import org.slf4j.LoggerFactory
@@ -9,7 +10,12 @@ import org.slf4j.LoggerFactory
 class ShellHandler extends HandlerTrait {
   private val LOG = LoggerFactory.getLogger(getClass)
 
-  override def doGet(request: Request, response: Response): Unit = ???
+  override def doGet(request: Request, response: Response): Unit = {
+    LOG.debug("this is the ShellHandler doPost")
+    response.setCharacterEncoding(StandardCharsets.UTF_8.toString)
+    response.getWriter.write(s"get health is success, trigger at ${OwnUtils.getTimeNow()}")
+    response.finish()
+  }
 
   override def doDelete(request: Request, response: Response): Unit = ???
 
@@ -32,13 +38,13 @@ class ShellHandler extends HandlerTrait {
     val bulk_size = postBodyMap.getOrElse("bulk_size", 12)
     val count = postBodyMap.getOrElse("count", 10000)
 
-    val esmBin = OwnUtils.makeFile(OwnUtils.getCurrentDir, "esmdir", "esm")
+//    val esmBin = OwnUtils.makeFile(OwnUtils.getCurrentDir, "esmdir", "esm")
 
     // TODO: nohup shell common?
     val cmd =
       """sh %s --source=%s --dest=%s --source_auth=%s --dest_auth=%s --src_indexes=%s
         | --copy_settings --copy_mappings --refresh --sliced_scroll_size=5 --shards=%s --workers=%s --bulk_size=%s --count=%s""".stripMargin
-        .format(esmBin, source, dest, source_auth, dest_auth, src_indexes, shards, workers, bulk_size, count)
+        .format(OwnConfig.ESM_BIN_FILE, source, dest, source_auth, dest_auth, src_indexes, shards, workers, bulk_size, count)
 
     LOG.info("this is the ShellHandler cmd={}", cmd)
     response.setCharacterEncoding(StandardCharsets.UTF_8.toString)

@@ -5,6 +5,7 @@ port=$2
 log=""
 pidfile=""
 pwd=""
+esm_bin_file=""
 
 function env_build(){
     date
@@ -14,6 +15,7 @@ function env_build(){
     echo pwd=$pwd
     log=$pwd/log
     pidfile=$pwd/pidfile.pid
+    esm_bin_file=$pwd/../esmdir/esm
     source "$pwd/util.sh"
 }
 
@@ -38,8 +40,13 @@ function main(){
     # executor
     OPTS="-Xms1G -Xmx2G"
     jarFile=$pwd/../lib/grizzly-http.jar
-    java $OPTS -cp $jarFile io.github.chenfh5.server.ShellServer > $log/esm-http-listener.out 2>&1 &
+
+    echo OPTS=${OPTS}
+    echo jarFile=${jarFile}
+
+    java $OPTS -cp $jarFile io.github.chenfh5.server.ShellServer --host=$host --port=$port --esm=$esm_bin_file > esm-http-listener.out 2>&1 &
     echo $! > $pidfile
+
     echo "begin to run at:" `date`
 }
 
