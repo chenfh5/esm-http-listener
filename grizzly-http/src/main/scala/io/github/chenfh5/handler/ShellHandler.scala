@@ -4,6 +4,7 @@ import java.nio.charset.StandardCharsets
 
 import io.github.chenfh5.OwnConfigReader.OwnConfig
 import io.github.chenfh5.OwnUtils
+import org.apache.commons.lang3.StringUtils
 import org.glassfish.grizzly.http.server.{Request, Response}
 import org.slf4j.LoggerFactory
 
@@ -20,6 +21,7 @@ class ShellHandler extends HandlerTrait {
   override def doDelete(request: Request, response: Response): Unit = ???
 
   override def doPost(request: Request, response: Response): Unit = {
+    import scala.sys.process._
     LOG.debug("this is the ShellHandler doPost")
     import org.json4s._
     import org.json4s.jackson.JsonMethods._
@@ -37,22 +39,30 @@ class ShellHandler extends HandlerTrait {
     val workers = postBodyMap.getOrElse("workers", 10)
     val bulk_size = postBodyMap.getOrElse("bulk_size", 12)
     val count = postBodyMap.getOrElse("count", 10000)
+    val iskill = postBodyMap.getOrElse("iskill", "false").toBoolean
 
     var cmd =
       """%s/esm --source=%s --dest=%s --source_auth=%s --dest_auth=%s --src_indexes=%s --copy_settings --copy_mappings --refresh --sliced_scroll_size=5 --shards=%s --workers=%s --bulk_size=%s --count=%s"""
         .format(OwnConfig.ESM_BIN_DIR, source, dest, source_auth, dest_auth, src_indexes, shards, workers, bulk_size, count)
     LOG.info("this is the ShellHandler cmd={}", cmd)
-
-    // add nohup
-    val name = s"${OwnUtils.getTimeNow(true)}_${cmd.hashCode}"
-    cmd += s""" >${OwnConfig.ESM_BIN_DIR}/log/$name 2>&1 &""" // log file for each http call
-
-    // run shell script
     var msg: String = ""
+
     try {
-      import sys.process._
-      cmd.!! // TODO: blocking here, need async. 2 how to pipeline make file
-      msg = s"cmd=$cmd success"
+      if (iskill) {
+        ("ps aux" #| Process(Seq("grep", cmd)) #| Process(Seq("grep", "-v", "grep")) #| Process(Seq("awk", "{print $2}")) #| "xargs kill -9").!! // start sync
+        msg = s"cmd=$cmd, kill success"
+      }
+      else {
+        // check cmd exists or not
+        val pid = ("ps aux" #| Process(Seq("grep", cmd)) #| Process(Seq("grep", "-v", "grep")) #| Process(Seq("awk", "{print $2}"))).!!.trim()
+        if (StringUtils.isNoneBlank(pid)) msg = s"cmd=$cmd, already exist, pleas wait until its finish. To terminate the cmd, try post with kill=true" // exists, no longer run again
+        else {
+          // not exists
+          val name = s"${OwnUtils.getTimeNow(true)}_${cmd.hashCode}"
+          val simpleProcess = (cmd #>> new java.io.File(s"${OwnConfig.ESM_BIN_DIR}/log/$name")).run() // start async and redirect
+          msg = s"cmd=$cmd, running in backgound with simpleProcess=$simpleProcess"
+        }
+      }
     } catch {
       case e: Throwable =>
         msg = s"cmd=$cmd, error=${e.getMessage}"
@@ -63,7 +73,6 @@ class ShellHandler extends HandlerTrait {
       response.finish()
     }
   }
-
 }
 
 object ShellHandler {

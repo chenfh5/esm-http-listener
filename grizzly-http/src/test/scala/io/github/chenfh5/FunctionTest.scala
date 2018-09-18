@@ -50,7 +50,8 @@ class FunctionTest {
           "shards": "9",
           "workers": "10",
           "bulk_size": "12",
-          "count": "10000"
+          "count": "10000",
+          "iskill": "false"
         }
       """
     val resp = shellClient.postEsmCmd(OwnConfig._AUTH64, postBody)

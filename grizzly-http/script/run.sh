@@ -48,7 +48,7 @@ function main(){
     java $OPTS -cp $jarFile io.github.chenfh5.server.ShellServer --host=$host --port=$port --esm=$esm_bin_dir > esm-http-listener.out 2>&1 &
     echo $! > $pidfile
 
-    echo "begin to run at:" `date`
+    echo "begin to run success at:" `date`
 }
 
 main
