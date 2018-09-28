@@ -11,7 +11,7 @@
     <modules>
         <module>grizzly-http</module>
         <module>listener-common</module>
-        <module>esm</module>
+        <module>esim</module>
     </modules>
 
     <properties>

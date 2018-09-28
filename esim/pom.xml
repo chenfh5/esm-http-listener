@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>esm</artifactId>
+    <artifactId>esim</artifactId>
 
     <dependencies>
         <!--Common jar-->
@@ -31,7 +31,13 @@
         <dependency>
             <groupId>org.elasticsearch.client</groupId>
             <artifactId>elasticsearch-rest-high-level-client</artifactId>
-            <version>5.6.12</version>
+            <version>6.4.0</version>
+        </dependency>
+        <!--json-->
+        <dependency>
+            <groupId>org.json4s</groupId>
+            <artifactId>json4s-jackson_${scala.source.version}</artifactId>
+            <version>3.6.0</version>
         </dependency>
     </dependencies>
 

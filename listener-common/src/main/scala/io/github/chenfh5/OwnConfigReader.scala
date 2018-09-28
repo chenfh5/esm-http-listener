@@ -17,6 +17,10 @@ object OwnConfigReader {
     var NEED_AUTH = getAsBoolean("NEED_AUTH")
     var _AUTH64 = getAsStr("_AUTH64")
 
+    var _ESUSER = getAsStr("_ESUSER")
+    var _ESPASSWORD = getAsStr("_ESPASSWORD")
+
+
     var TIMEOUT_MILLS = getAsInt("TIMEOUT_MILLS")
     var ESM_BIN_DIR = ""
 

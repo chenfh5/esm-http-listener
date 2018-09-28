@@ -32,7 +32,7 @@ object ShellClient {
           "iskill": "false"
         }
       """
-    val resp = shellClient.postEsmCmd(OwnConfig._AUTH64, postBody)
+    val resp = shellClient.postEsmCmd(OwnUtils.decode(OwnConfig._AUTH64), postBody)
     println(resp.body)
   }
 

@@ -41,9 +41,7 @@ class ShellHandler extends HandlerTrait {
     val count = postBodyMap.getOrElse("count", 10000)
     val iskill = postBodyMap.getOrElse("iskill", "false").toBoolean
 
-    var cmd =
-      """%s/esm --source=%s --dest=%s --source_auth=%s --dest_auth=%s --src_indexes=%s --copy_settings --copy_mappings --refresh --sliced_scroll_size=5 --shards=%s --workers=%s --bulk_size=%s --count=%s"""
-        .format(OwnConfig.ESM_BIN_DIR, source, dest, source_auth, dest_auth, src_indexes, shards, workers, bulk_size, count)
+    var cmd ="""/data/home/fuhaochen/esm-http-listener/esmdir/esm --source=http://10.213.147.222:8080 --dest=http://10.229.140.207:8080 --source_auth=blueking:bLuEkinG@2018 --dest_auth=blueking:bLuEkinG@2018 --src_indexes=100183_etl_frame_sms_2018073000"""
     LOG.info("this is the ShellHandler cmd={}", cmd)
     var msg: String = ""
 

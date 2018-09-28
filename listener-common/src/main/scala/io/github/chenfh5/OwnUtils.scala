@@ -31,4 +31,7 @@ object OwnUtils {
 
   def makeFile[T](param: T*): String = param.mkString(getDirSep)
 
+  def encode(rawMsg: String): String = new String(java.util.Base64.getEncoder.encode(rawMsg.getBytes()))
+
+  def decode(enMsg: String) = new String(java.util.Base64.getDecoder.decode(enMsg))
 }

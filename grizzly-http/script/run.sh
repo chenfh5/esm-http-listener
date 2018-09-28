@@ -17,6 +17,7 @@ function env_build(){
     pidfile=$pwd/pidfile.pid
     esm_bin_dir=$pwd/../esmdir
     mkdir $esm_bin_dir/log
+    mkdir $esm_bin_dir/shell
     source "$pwd/util.sh"
 }
 

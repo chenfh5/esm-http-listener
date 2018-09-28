@@ -1,18 +1,23 @@
 package io.github.chenfh5
 
-import org.elasticsearch.client.RestHighLevelClient
+import org.elasticsearch.client.{RequestOptions, RestHighLevelClient}
 import org.elasticsearch.index.query.QueryBuilders
+import org.slf4j.LoggerFactory
 
-class GetScroll(client: RestHighLevelClient) {
+import scala.collection.mutable
 
-  def get(indexToGet: String, scrollSize: Int = 10000): Unit = {
+
+class GetScroll(client: RestHighLevelClient, indexName: String, scrollSize: Int, queue: mutable.Queue[String]) extends Runnable {
+  private val LOG = LoggerFactory.getLogger(getClass)
+
+  override def run(): Unit = {
     import org.elasticsearch.action.search.{ClearScrollRequest, SearchRequest, SearchScrollRequest}
     import org.elasticsearch.common.unit.TimeValue
     import org.elasticsearch.search.Scroll
     import org.elasticsearch.search.builder.SearchSourceBuilder
     val scroll = new Scroll(TimeValue.timeValueMinutes(1L))
 
-    val searchRequest = new SearchRequest(indexToGet)
+    val searchRequest = new SearchRequest(indexName)
     val searchSourceBuilder = new SearchSourceBuilder
     searchSourceBuilder.query(QueryBuilders.matchAllQuery())
     // Note that from + size can not be more than the index.max_result_window index setting which defaults to 10,000(normal search)
@@ -25,38 +30,37 @@ class GetScroll(client: RestHighLevelClient) {
 
     // first
     var loopCnt = 0
-    println(s"loopCnt=$loopCnt scroll at: ${OwnUtils.getTimeNow()}")
-    var searchResponse = client.search(searchRequest)
+    LOG.info(s"loopCnt=$loopCnt scroll at: ${OwnUtils.getTimeNow()}")
+    var searchResponse = client.search(searchRequest, RequestOptions.DEFAULT)
     var scrollId = searchResponse.getScrollId
     var searchHits = searchResponse.getHits.getHits
     for (searchHit <- searchHits) {
-      println(Map(searchHit.getId -> searchHit.getSourceAsString))
+      queue.enqueue(searchHit.getSourceAsString)
     }
     // loop
-    println(s"begin loop scroll at: ${OwnUtils.getTimeNow()}")
     while (searchHits != null && searchHits.length > 0) {
       loopCnt += 1
-      println(s"loopCnt=$loopCnt scroll at: ${OwnUtils.getTimeNow()}")
+      LOG.info(s"loopCnt=$loopCnt scroll at: ${OwnUtils.getTimeNow()}")
       val scrollRequest = new SearchScrollRequest(scrollId)
       scrollRequest.scroll(scroll)
-      searchResponse = client.searchScroll(scrollRequest)
+      searchResponse = client.scroll(scrollRequest, RequestOptions.DEFAULT)
       scrollId = searchResponse.getScrollId
       searchHits = searchResponse.getHits.getHits
       for (searchHit <- searchHits) {
-        println(Map(searchHit.getId -> searchHit.getSourceAsString))
+        queue.enqueue(searchHit.getSourceAsString)
       }
     }
-    println(s"end loop scroll at: ${OwnUtils.getTimeNow()}")
+    LOG.info(s"end loop scroll at: ${OwnUtils.getTimeNow()}")
     // teardown
     val clearScrollRequest = new ClearScrollRequest
     clearScrollRequest.addScrollId(scrollId)
-    val clearScrollResponse = client.clearScroll(clearScrollRequest)
+    val clearScrollResponse = client.clearScroll(clearScrollRequest, RequestOptions.DEFAULT)
     val succeeded = clearScrollResponse.isSucceeded
-    println(s"clearScrollResponse succeeded=$succeeded at: ${OwnUtils.getTimeNow()}")
+    LOG.info(s"clearScrollResponse succeeded=$succeeded at: ${OwnUtils.getTimeNow()}")
   }
 
 }
 
 object GetScroll {
-  def apply(client: RestHighLevelClient): GetScroll = new GetScroll(client)
+  def apply(client: RestHighLevelClient, indexName: String, scrollSize: Int = 10000, queue: mutable.Queue[String]): GetScroll = new GetScroll(client, indexName, scrollSize, queue)
 }

@@ -1,5 +1,5 @@
 # elasticsearch index migration
-> Base on [Java High Level REST Client](https://www.elastic.co/guide/en/elasticsearch/client/java-rest/5.6/java-rest-high.html)
+> Base on [Java High Level REST Client](https://www.elastic.co/guide/en/elasticsearch/client/java-rest/6.4/java-rest-high.html)
 
 ## Steps
 - client
