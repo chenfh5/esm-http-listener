@@ -23,15 +23,13 @@ object TestOnly {
   }
 
   def t1() = {
-    import java.io.{File, PrintWriter}
-
     import scala.sys.process._
     var cmd ="""/home/fuhaochen-ub/Downloads/esmdir/esm --source=http://10.213.147.222:8080 --dest=http://10.229.140.207:8080 --source_auth=blueking:bLuEkinG@2018 --dest_auth=blueking:bLuEkinG@2018 --src_indexes=100183_etl_frame_sms_2018073000 --copy_settings --copy_mappings --refresh --sliced_scroll_size=5 --shards=7 --workers=10 --bulk_size=12 --count=10000"""
-//    cmd ="""date"""
-    val s1= cmd.run()
-//    println(s1.mkString(""))
-//    println(s1.mkString(""))
-println(s1)
+    //    cmd ="""date"""
+    val s1 = cmd.run()
+    //    println(s1.mkString(""))
+    //    println(s1.mkString(""))
+    println(s1)
 
   }
 

@@ -38,20 +38,20 @@ class Controller(srcHost: String, srcPort: Int, destHost: String, destPort: Int,
     LOG.info("this is the teardown end={}", OwnUtils.getTimeNow())
   }
 
-  def process(srcIndexName: String, typeName: String, destIndexName: String, scrollSize: Int = 10000, concurrentRequests: Int = 5): Unit = {
+  def process(srcIndexName: String, srcTypeName: String, destIndexName: String, scrollSize: Int = 10000, concurrentRequests: Int = 5): String = {
     require(scrollSize <= 10000, "Batch size <= 10000")
     require(concurrentRequests <= 20, "concurrentRequests <= 20")
     LOG.info(s"this is the Controller begin at ${OwnUtils.getTimeNow()}")
     val beginTime = System.nanoTime()
     setup()
     val copyIndex = CopyIndex()
-    val res = copyIndex.copy(srcClient, destClient, srcIndexName, typeName, destIndexName)
+    val res = copyIndex.copy(srcClient, destClient, srcIndexName, srcTypeName, destIndexName)
     if (!res) throw new RuntimeException("create copy index fail")
 
     // producer
     val getScroll = new GetScroll(srcClient, srcIndexName, scrollSize, queue, getScrollDone)
     // consumer
-    val putBulk = new PutBulk(destClient, destIndexName, typeName, concurrentRequests, queue, getScrollDone)
+    val putBulk = new PutBulk(destClient, destIndexName, srcTypeName, concurrentRequests, queue, getScrollDone)
     putBulk.setup()
     // reporter
     val countQueueSize = new CountQueueSize(queue, getScrollDone)
@@ -65,7 +65,9 @@ class Controller(srcHost: String, srcPort: Int, destHost: String, destPort: Int,
     putBulk.teardown()
     teardown()
     import scala.concurrent.duration._
-    LOG.info(s"this is the Controller   end at ${OwnUtils.getTimeNow()}. Elapsed ${(System.nanoTime() - beginTime).nanos.toSeconds} seconds")
+    val msg = s"this is the Controller   end at ${OwnUtils.getTimeNow()}. Elapsed ${(System.nanoTime() - beginTime).nanos.toSeconds} seconds"
+    LOG.info(msg)
+    msg
   }
 
 }

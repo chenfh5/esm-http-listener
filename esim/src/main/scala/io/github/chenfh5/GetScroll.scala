@@ -46,7 +46,7 @@ class GetScroll(client: RestHighLevelClient, indexName: String, scrollSize: Int,
         LOG.info(s"waiting for consumer")
       }
       loopCnt += 1
-      LOG.info(s"loopCnt=$loopCnt scroll")
+      LOG.debug(s"loopCnt=$loopCnt scroll")
       val scrollRequest = new SearchScrollRequest(scrollId)
       scrollRequest.scroll(scroll)
       searchResponse = client.scroll(scrollRequest, RequestOptions.DEFAULT)
