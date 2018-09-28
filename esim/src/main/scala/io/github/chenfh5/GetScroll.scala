@@ -1,5 +1,7 @@
 package io.github.chenfh5
 
+import java.util.concurrent.atomic.AtomicBoolean
+
 import org.elasticsearch.client.{RequestOptions, RestHighLevelClient}
 import org.elasticsearch.index.query.QueryBuilders
 import org.slf4j.LoggerFactory
@@ -7,7 +9,7 @@ import org.slf4j.LoggerFactory
 import scala.collection.mutable
 
 
-class GetScroll(client: RestHighLevelClient, indexName: String, scrollSize: Int, queue: mutable.Queue[String]) extends Runnable {
+class GetScroll(client: RestHighLevelClient, indexName: String, scrollSize: Int, queue: mutable.Queue[String], getScrollDone: AtomicBoolean) extends Runnable {
   private val LOG = LoggerFactory.getLogger(getClass)
 
   override def run(): Unit = {
@@ -30,7 +32,7 @@ class GetScroll(client: RestHighLevelClient, indexName: String, scrollSize: Int,
 
     // first
     var loopCnt = 0
-    LOG.info(s"loopCnt=$loopCnt scroll at: ${OwnUtils.getTimeNow()}")
+    LOG.info(s"loopCnt=$loopCnt scroll")
     var searchResponse = client.search(searchRequest, RequestOptions.DEFAULT)
     var scrollId = searchResponse.getScrollId
     var searchHits = searchResponse.getHits.getHits
@@ -39,8 +41,12 @@ class GetScroll(client: RestHighLevelClient, indexName: String, scrollSize: Int,
     }
     // loop
     while (searchHits != null && searchHits.length > 0) {
+      while (queue.size > 200000) {
+        Thread.sleep(2000)
+        LOG.info(s"waiting for consumer")
+      }
       loopCnt += 1
-      LOG.info(s"loopCnt=$loopCnt scroll at: ${OwnUtils.getTimeNow()}")
+      LOG.info(s"loopCnt=$loopCnt scroll")
       val scrollRequest = new SearchScrollRequest(scrollId)
       scrollRequest.scroll(scroll)
       searchResponse = client.scroll(scrollRequest, RequestOptions.DEFAULT)
@@ -50,17 +56,14 @@ class GetScroll(client: RestHighLevelClient, indexName: String, scrollSize: Int,
         queue.enqueue(searchHit.getSourceAsString)
       }
     }
-    LOG.info(s"end loop scroll at: ${OwnUtils.getTimeNow()}")
+    LOG.info(s"this is the GetScroll end loop scroll at: ${OwnUtils.getTimeNow()}")
     // teardown
     val clearScrollRequest = new ClearScrollRequest
     clearScrollRequest.addScrollId(scrollId)
     val clearScrollResponse = client.clearScroll(clearScrollRequest, RequestOptions.DEFAULT)
     val succeeded = clearScrollResponse.isSucceeded
-    LOG.info(s"clearScrollResponse succeeded=$succeeded at: ${OwnUtils.getTimeNow()}")
+    LOG.info(s"this is the GetScroll clearScrollResponse succeeded=$succeeded at: ${OwnUtils.getTimeNow()}")
+    getScrollDone.set(succeeded)
   }
 
-}
-
-object GetScroll {
-  def apply(client: RestHighLevelClient, indexName: String, scrollSize: Int = 10000, queue: mutable.Queue[String]): GetScroll = new GetScroll(client, indexName, scrollSize, queue)
 }

@@ -7,7 +7,6 @@ import scala.collection.mutable
 
 class FuncTest {
   private val LOG = LoggerFactory.getLogger(getClass)
-  val (host, port) = ("localhost", 9200)
 
   @BeforeClass
   def setUp(): Unit = {
@@ -23,8 +22,10 @@ class FuncTest {
   @Test(enabled = true)
   def testController(): Unit = {
     val queue = mutable.Queue[String]()
-    val controller = Controller(host, port, host, port)
-    controller.process("your_indexname_src", "your_typename_src", "your_indexname_dest", 100)
+    val (srcHost, srcPort) = ("localhost", 9200)
+    val (destHost, destPort) = ("localhost", 9201)
+    val controller = new Controller(srcHost, srcPort, destHost, destPort, "Y2hlbmZoNQ==", "Y2hlbmZoNQ==")
+    controller.process("your_indexname_src", "your_typename_src", "your_indexname_dest", 1000, 6)
   }
 
 }

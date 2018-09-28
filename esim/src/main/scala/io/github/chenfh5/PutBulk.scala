@@ -1,6 +1,7 @@
 package io.github.chenfh5
 
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.function.BiConsumer
 
 import org.elasticsearch.action.bulk.{BackoffPolicy, BulkProcessor}
@@ -11,7 +12,7 @@ import org.slf4j.LoggerFactory
 
 import scala.collection.mutable
 
-class PutBulk(client: RestHighLevelClient, indexName: String, typeName: String, queue: mutable.Queue[String]) extends LifeCycle with Runnable {
+class PutBulk(client: RestHighLevelClient, indexName: String, typeName: String, concurrentRequests: Int = 5, queue: mutable.Queue[String], getScrollDone: AtomicBoolean) extends LifeCycle with Runnable {
   private val LOG = LoggerFactory.getLogger(getClass)
   private[this] var bulkProcessor: BulkProcessor = _
 
@@ -36,8 +37,9 @@ class PutBulk(client: RestHighLevelClient, indexName: String, typeName: String, 
     builder.setBulkActions(-1)
     // Start with a bulk size around 5–15 MB and slowly increase it until you do not see performance gains anymore
     // @see https://www.elastic.co/guide/en/elasticsearch/guide/current/indexing-performance.html#_using_and_sizing_bulk_requests
-    builder.setBulkSize(new ByteSizeValue(15L, ByteSizeUnit.MB))
-    builder.setConcurrentRequests(5) // Sets the number of concurrent requests allowed to be executed
+    builder.setFlushInterval(TimeValue.timeValueSeconds(600L))
+    builder.setBulkSize(new ByteSizeValue(10L, ByteSizeUnit.MB))
+    builder.setConcurrentRequests(concurrentRequests) // Sets the number of concurrent requests allowed to be executed
     builder.setBackoffPolicy(BackoffPolicy.constantBackoff(TimeValue.timeValueSeconds(1L), 3))
 
     // real
@@ -52,21 +54,14 @@ class PutBulk(client: RestHighLevelClient, indexName: String, typeName: String, 
 
   override def run(): Unit = {
     import org.elasticsearch.common.xcontent.XContentType
-    var producerHasData = false
-    while (!producerHasData) {
-      LOG.info("this is the PutBulk to wait producer generate data")
-      Thread.sleep(1000)
-      if (queue.nonEmpty) producerHasData = true
-    }
-
     // execute when have data
-    while (queue.nonEmpty) {
-      bulkProcessor.add(new IndexRequest(indexName, typeName).source(queue.dequeue(), XContentType.JSON))
+    while (!getScrollDone.get()) {
+      Thread.sleep(2000)
+      while (queue.nonEmpty) {
+        bulkProcessor.add(new IndexRequest(indexName, typeName).source(queue.dequeue(), XContentType.JSON))
+      }
     }
+    LOG.info(s"this is the PutBulk end at ${OwnUtils.getTimeNow()}")
   }
 
-}
-
-object PutBulk {
-  def apply(client: RestHighLevelClient, indexName: String, typeName: String, queue: mutable.Queue[String]): PutBulk = new PutBulk(client, indexName, typeName, queue)
 }
