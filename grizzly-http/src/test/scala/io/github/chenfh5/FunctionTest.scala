@@ -35,6 +35,7 @@ class FunctionTest {
         Thread.sleep(1000) // wait for server bootstrap
         println(s"thread id=${Thread.currentThread().getId}")
         val resp = testShellClient()
+        println(resp)
         Assert.assertEquals(resp.code, 200)
         Assert.assertEquals(resp.body, "esim success")
         shellServer.stop()

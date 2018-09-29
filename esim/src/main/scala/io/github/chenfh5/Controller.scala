@@ -33,8 +33,10 @@ class Controller(srcHost: String, srcPort: Int, destHost: String, destPort: Int,
   }
 
   override def teardown(): Unit = {
-    srcClient.getLowLevelClient.close()
-    destClient.getLowLevelClient.close()
+    getScrollDone.set(true)
+    queue.clear()
+    if (destClient != null) destClient.close()
+    if (srcClient != null) srcClient.close()
     LOG.info("this is the teardown end={}", OwnUtils.getTimeNow())
   }
 

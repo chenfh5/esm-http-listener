@@ -20,7 +20,7 @@ trait Server {
     LOG.info("this is the HttpServer stopping...")
     if (server != null) {
       server.shutdown()
-      server == null
+      server = null
     }
 
     LOG.info("this is the HttpServer shutdown success!!!")

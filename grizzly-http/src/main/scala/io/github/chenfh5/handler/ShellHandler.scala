@@ -41,6 +41,7 @@ class ShellHandler extends HandlerTrait {
       val concurrentRequests = postBodyMap("concurrentRequests").toInt
       val controller = new Controller(srcHost, srcPort, destHost, destPort, authUser, authPW)
       msg = controller.process(srcIndexName, srcTypeName, destIndexName, scrollSize, concurrentRequests)
+      // TODO: catch http request abort to close the controller
     } catch {
       case e: Throwable =>
         msg = s"esim error=${e.getMessage}"
