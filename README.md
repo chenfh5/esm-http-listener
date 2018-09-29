@@ -19,3 +19,6 @@
 ## Refenerce
 - [scala shell](https://www.scala-lang.org/api/current/scala/sys/process/ProcessBuilder.html)
 - [esm](https://github.com/medcl/esm)
+
+## REMOVE COMMIT
+`git push -f origin Head^^^:master`

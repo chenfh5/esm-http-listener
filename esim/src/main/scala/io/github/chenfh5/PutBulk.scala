@@ -58,7 +58,12 @@ class PutBulk(client: RestHighLevelClient, indexName: String, typeName: String, 
     while (!getScrollDone.get()) {
       Thread.sleep(2000)
       while (queue.nonEmpty) {
-        bulkProcessor.add(new IndexRequest(indexName, typeName).source(queue.dequeue(), XContentType.JSON))
+        try {
+          bulkProcessor.add(new IndexRequest(indexName, typeName).source(queue.dequeue(), XContentType.JSON))
+        } catch {
+          case e: Throwable =>
+            LOG.warn(e.getMessage)
+        }
       }
     }
     LOG.info(s"this is the PutBulk end at ${OwnUtils.getTimeNow()}")

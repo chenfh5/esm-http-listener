@@ -54,3 +54,4 @@ function main(){
 
 main
 ps aux | grep "io.github.chenfh5.server.ShellServer" | grep -v "grep"
+tailf esm-http-listener.out

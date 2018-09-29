@@ -8,13 +8,6 @@
     </formats>
     <includeBaseDirectory>false</includeBaseDirectory>
 
-    <!--<dependencySets>-->
-        <!--<dependencySet>-->
-            <!--<useProjectArtifact>false</useProjectArtifact>-->
-            <!--<outputDirectory>lib</outputDirectory>-->
-        <!--</dependencySet>-->
-    <!--</dependencySets>-->
-
     <fileSets>
         <fileSet>
             <directory>${project.build.directory}</directory>
