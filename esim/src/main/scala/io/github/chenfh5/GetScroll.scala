@@ -40,13 +40,22 @@ class GetScroll(client: RestHighLevelClient, indexName: String, scrollSize: Int,
       queue.enqueue(searchHit.getSourceAsString)
     }
     // loop
+    import scala.concurrent.duration._
     while (searchHits != null && searchHits.length > 0) {
+      var beginTime = System.nanoTime() // reset timeout
       while (queue.size > 200000) {
+        val timeoutInSec = (System.nanoTime() - beginTime).nanos.toSeconds
+        // wait half an hour
+        if (timeoutInSec >= 1800) {
+          queue.clear()
+          getScrollDone.set(true)
+          throw new RuntimeException(s"producer waiting too much timeoutInSec=$timeoutInSec")
+        }
         Thread.sleep(2000)
         LOG.info(s"waiting for consumer")
       }
       loopCnt += 1
-      LOG.info(s"loopCnt=$loopCnt scroll")
+      LOG.debug(s"loopCnt=$loopCnt scroll")
       val scrollRequest = new SearchScrollRequest(scrollId)
       scrollRequest.scroll(scroll)
       searchResponse = client.scroll(scrollRequest, RequestOptions.DEFAULT)

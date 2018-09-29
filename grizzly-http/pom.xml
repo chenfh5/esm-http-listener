@@ -18,6 +18,11 @@
             <artifactId>listener-common</artifactId>
             <version>1.0.0</version>
         </dependency>
+        <dependency>
+            <groupId>io.github.chenfh5</groupId>
+            <artifactId>esim</artifactId>
+            <version>1.0.0</version>
+        </dependency>
         <!--Testing Frameworks-->
         <dependency>
             <groupId>org.testng</groupId>

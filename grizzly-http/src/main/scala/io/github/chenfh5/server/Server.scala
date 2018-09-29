@@ -18,7 +18,11 @@ trait Server {
 
   def stop(): Unit = {
     LOG.info("this is the HttpServer stopping...")
-    if (server != null) server.shutdown()
+    if (server != null) {
+      server.shutdown()
+      server = null
+    }
+
     LOG.info("this is the HttpServer shutdown success!!!")
   }
 
