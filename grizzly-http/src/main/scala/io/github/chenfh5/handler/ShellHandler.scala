@@ -9,6 +9,13 @@ import org.slf4j.LoggerFactory
 class ShellHandler extends HandlerTrait {
   private val LOG = LoggerFactory.getLogger(getClass)
 
+  /**
+    * @api {GET} shell/esm get running tasks
+    * @apiDescription thread-name format is [type_timestamp_params.hashcode], e.g., countQueueSize_1542095780885_1468583655
+    * @apiGroup ESIM
+    * @apiSuccessExample {String} Success-Response:
+    *                    get health is success, trigger at 2018-11-13 16:11:21 Tue, runningTasks=Set(countQueueSize_1542095780885_1468583655, countQueueSize_1542095777669_-525499890)
+    */
   override def doGet(request: Request, response: Response): Unit = {
     LOG.debug("this is the ShellHandler doGet")
     response.setCharacterEncoding(StandardCharsets.UTF_8.toString)
@@ -18,6 +25,15 @@ class ShellHandler extends HandlerTrait {
     response.finish()
   }
 
+  /**
+    * @api {DELETE} shell/esm cancel specified task
+    * @apiGroup ESIM
+    * @apiParam {String} id
+    * @apiParamExample {String} Request-Example:
+    *                  shell/esm?id=7947866
+    * @apiSuccessExample {String} Success-Response:
+    *                    remove task with id=7947866, size=3
+    */
   override def doDelete(request: Request, response: Response): Unit = {
     LOG.debug("this is the ShellHandler doDelete")
     val id = request.getParameter("id")
@@ -28,6 +44,27 @@ class ShellHandler extends HandlerTrait {
     response.finish()
   }
 
+  /**
+    * @api {POST} shell/esm create specified task
+    * @apiGroup ESIM
+    * @apiParamExample {json} Request-Example:
+    *                  {
+    *                  "srcHost": "localhost",
+    *                  "srcPort": "8080",
+    *                  "destHost": "localhost",
+    *                  "destPort": "8082",
+    *                  "authUser": "Ymx1ZWtpbmc=",
+    *                  "authPW": "Ykx1RWtpbkdAMjAxOA==",
+    *                  "srcIndexName": "src_index_name",
+    *                  "srcTypeName": "src_index_type_name",
+    *                  "destIndexName": "dest_index_name",
+    *                  "scrollSize": "10000",
+    *                  "concurrentRequests": "10"
+    *                  }
+    * @apiSuccessExample {json} Success-Response:
+    *                    blocking the request until response, but you can close the session whose task had runned in backgroud.
+    *                    If you want to kill it, using `GET` to find the id, and then using `DELETE` to cancel it
+    */
   override def doPost(request: Request, response: Response): Unit = {
     LOG.debug("this is the ShellHandler doPost")
     import org.json4s._
