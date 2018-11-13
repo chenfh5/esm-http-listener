@@ -20,7 +20,7 @@ class FuncTest {
   }
 
   // main body
-  @Test(enabled = true)
+  @Test(enabled = false)
   def testController(): Unit = {
     val queue = mutable.Queue[String]()
     val (srcHost, srcPort) = ("localhost", 9200)
