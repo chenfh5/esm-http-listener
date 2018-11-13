@@ -32,6 +32,6 @@ P.S.,
 - the difference between src and dest may caused by index is not static, but dynameic changing.
 - when the session abort or timeout, the task still in background
 
-## Refenerce
+## Reference
 - [scala shell](https://www.scala-lang.org/api/current/scala/sys/process/ProcessBuilder.html)
 - [esm](https://github.com/medcl/esm)
