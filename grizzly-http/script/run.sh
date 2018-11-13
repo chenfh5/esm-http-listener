@@ -54,4 +54,5 @@ function main(){
 
 main
 ps aux | grep "io.github.chenfh5.server.ShellServer" | grep -v "grep"
+echo "tailfing, 'Ctrl-C' to break"
 tailf esm-http-listener.out

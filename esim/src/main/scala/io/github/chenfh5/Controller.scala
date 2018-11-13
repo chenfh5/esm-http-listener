@@ -40,7 +40,7 @@ class Controller(srcHost: String, srcPort: Int, destHost: String, destPort: Int,
     LOG.info("this is the teardown end={}", OwnUtils.getTimeNow())
   }
 
-  def process(srcIndexName: String, srcTypeName: String, destIndexName: String, scrollSize: Int = 10000, concurrentRequests: Int = 5): String = {
+  def process(srcIndexName: String, srcTypeName: String, destIndexName: String, scrollSize: Int = 10000, concurrentRequests: Int = 5, threadUniqueId: Int): String = {
     require(scrollSize <= 10000, "Batch size <= 10000")
     require(concurrentRequests <= 20, "concurrentRequests <= 20")
     LOG.info(s"this is the Controller begin at ${OwnUtils.getTimeNow()}")
@@ -60,7 +60,8 @@ class Controller(srcHost: String, srcPort: Int, destHost: String, destPort: Int,
 
     // start thread
     // @see https://stackoverflow.com/questions/20495414/thread-join-equivalent-in-executor
-    val tp = Seq(new Thread(getScroll), new Thread(putBulk), new Thread(countQueueSize))
+    val uniq = System.currentTimeMillis() + "_" + threadUniqueId
+    val tp = Seq(new Thread(getScroll, s"getScroll_$uniq"), new Thread(putBulk, s"putBulk_$uniq"), new Thread(countQueueSize, s"countQueueSize_$uniq"))
     tp.foreach(_.start())
     tp.foreach(_.join())
 
