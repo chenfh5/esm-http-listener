@@ -74,9 +74,9 @@ class ShellHandler extends HandlerTrait {
     val postBodyStr = scala.io.Source.fromInputStream(request.getInputStream).mkString
     val postBodyMap = parse(postBodyStr).extract[Map[String, String]]
     val threadUniqueId = postBodyMap.hashCode()
-    if (Utils.isTaskAlreadyExist(threadUniqueId)) throw new RuntimeException(s"task with params=$postBodyMap have already exist")
     var msg: String = ""
-    try {
+    if (Utils.isTaskAlreadyExist(threadUniqueId)) msg = s"task with params=$postBodyMap, id=$threadUniqueId have already exist" // task already exist, do not submit again
+    else { // submit task
       val srcHost = postBodyMap("srcHost")
       val srcPort = postBodyMap("srcPort").toInt
       val destHost = postBodyMap("destHost")
@@ -90,15 +90,11 @@ class ShellHandler extends HandlerTrait {
       val concurrentRequests = postBodyMap("concurrentRequests").toInt
       val controller = new Controller(srcHost, srcPort, destHost, destPort, authUser, authPW)
       msg = controller.process(srcIndexName, srcTypeName, destIndexName, scrollSize, concurrentRequests, threadUniqueId)
-      // TODO: catch http request abort to close the controller
-    } catch {
-      case e: Throwable =>
-        msg = s"esim error=${e.getMessage}"
-    } finally {
-      response.setCharacterEncoding(StandardCharsets.UTF_8.toString)
-      response.getWriter.write(s"msg=$msg, trigger at ${OwnUtils.getTimeNow()}")
-      response.finish()
     }
+    // return response
+    response.setCharacterEncoding(StandardCharsets.UTF_8.toString)
+    response.getWriter.write(s"msg=$msg, trigger at ${OwnUtils.getTimeNow()}")
+    response.finish()
   }
 
 }
