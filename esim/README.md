@@ -7,5 +7,5 @@
 - put, pull from blocking list
 - copy index settings
 
-## Ref
+## Reference
 - [索引迁移](https://www.jianshu.com/p/4bd49df2d954)

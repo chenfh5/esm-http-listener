@@ -26,7 +26,7 @@ class FuncTest {
     val (srcHost, srcPort) = ("localhost", 9200)
     val (destHost, destPort) = ("localhost", 9201)
     val controller = new Controller(srcHost, srcPort, destHost, destPort, "Y2hlbmZoNQ==", "Y2hlbmZoNQ==")
-    val msg = controller.process("your_indexname_src", "your_typename_src", "your_indexname_dest", 1000, 6)
+    val msg = controller.process("your_indexname_src", "your_typename_src", "your_indexname_dest", 1000, 6, 999)
     Assert.assertNotNull(msg)
   }
 
