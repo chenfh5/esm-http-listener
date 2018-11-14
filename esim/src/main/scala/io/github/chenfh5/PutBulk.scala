@@ -62,7 +62,7 @@ class PutBulk(client: RestHighLevelClient, indexName: String, typeName: String, 
           bulkProcessor.add(new IndexRequest(indexName, typeName).source(queue.dequeue(), XContentType.JSON))
         } catch {
           case e: Throwable =>
-            LOG.warn(e.getMessage)
+            LOG.trace(e.getMessage) // e.g., [2018-11-14 17:34:24 WARN ] PutBulk -
         }
       }
     }
